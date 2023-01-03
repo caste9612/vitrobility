@@ -1,25 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from './logo.svg'
+import './App.css'
+import { useEffect, useState } from 'react'
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom"
+import Auth from './components/login/Auth'
+import Home from './components/home/Home'
 
 function App() {
+
+  const [isLoggedIn, setisLoggedIn] = useState(false)
+  const [user, setUser] = useState({})
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/auth")
+    } else {
+      navigate("/home")
+    }
+  }, [navigate, isLoggedIn])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Routes>
+        <Route path="/auth" element={<Auth setisLoggedIn = {setisLoggedIn} setUser = {setUser} />} />
+        <Route path="/home" element={<Home user = {user} />} />
+        <Route path='*' element={<Navigate to='/home' />} />
+      </Routes>
   );
 }
 
-export default App;
+export default App
