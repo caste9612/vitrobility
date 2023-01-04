@@ -8,28 +8,28 @@ export default function Auth (props) {
     
     const navigate = useNavigate()
 
-    const [email, setEmail] = useState('');
-    const [psw, setPsw] = useState('');
+    const [email, setEmail] = useState('')
+    const [psw, setPsw] = useState('')
     const [wrongPassword, setWrongPassword] = useState(false)
 
     async function login(e){
 
-        e.preventDefault();
+        e.preventDefault()
 
-        const pb = new PocketBase('http://127.0.0.1:8090');
+        const pb = new PocketBase('http://127.0.0.1:8090')
 
         const authData = await pb.collection('users').authWithPassword(email, psw)
-        .then((returnedResponse) => {
-            if(pb.authStore.isValid){
-                console.log(pb.authStore.model)
-                props.setisLoggedIn(true);
-                props.setUser({name: pb.authStore.model.username})
-                navigate("/home")
-            }
-         }).catch((error) => {
-            console.log(error)
-            setWrongPassword(true)
-        });
+            .then(() => {
+                if(pb.authStore.isValid){
+                    console.log(pb.authStore.model)
+                    props.setisLoggedIn(true);
+                    props.setUser({name: pb.authStore.model.username})
+                    navigate("/home")
+                }
+            }).catch((error) => {
+                console.log(error)
+                setWrongPassword(true)
+            });
     }
 
     return (

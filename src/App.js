@@ -2,8 +2,8 @@ import logo from './logo.svg'
 import './App.css'
 import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom"
-import Auth from './components/login/Auth'
-import Home from './components/home/Home'
+import Auth from './components/Login/Auth'
+import Home from './components/Home/Home'
 
 function App() {
 
@@ -13,11 +13,7 @@ function App() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/auth")
-    } else {
-      navigate("/home")
-    }
+    navigate(!isLoggedIn ? "/auth" : "/home")
   }, [navigate, isLoggedIn])
 
   return (
