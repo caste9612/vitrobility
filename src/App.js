@@ -2,13 +2,18 @@ import logo from './logo.svg'
 import './App.css'
 import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom"
-import Auth from './components/Login/Auth'
-import Home from './components/Home/Home'
+import Auth from './components/login/Auth'
+import Home from './components/home/Home'
+
+import PocketBase from 'pocketbase';
 
 function App() {
 
   const [isLoggedIn, setisLoggedIn] = useState(false)
   const [user, setUser] = useState({})
+
+  const pb = new PocketBase('http://127.0.0.1:8090');
+
 
   const navigate = useNavigate()
 
@@ -19,7 +24,7 @@ function App() {
   return (
       <Routes>
         <Route path="/auth" element={<Auth setisLoggedIn = {setisLoggedIn} setUser = {setUser} />} />
-        <Route path="/home" element={<Home user = {user} />} />
+        <Route path="/home" element={<Home user = {user} pb = {pb}/>} />
         <Route path='*' element={<Navigate to='/home' />} />
       </Routes>
   );

@@ -48,7 +48,7 @@ export default function NewCookedJarButton() {
     };
 
     const handleSave = () => {
-
+        handleClose()
     }
 
     //Date Picker Handle
