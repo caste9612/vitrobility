@@ -30,10 +30,26 @@ import Select from '@mui/material/Select';
 
 
 
-export default function NewCookedJarButton() {
+export default function NewCookedJarButton(props) {
+    let pb = props.pb;
 
     //Dialog handle
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = React.useState(false);
+    const [barcodeValue, setBarcodeValue] = React.useState("");
+
+    let substrates = [{key: '', value: '--Choose an option--'}]
+    
+    if(props.cookedjars !== []){
+        props.cookedjars.forEach(el => {
+            if(substrates.find(sub => sub.key === el.substrate)) return
+            substrates.push({
+                key: el.substrate, value: el.substrate
+            })
+        });
+    }
+
+    const [substrate, setSubstrate] = React.useState(substrates[0].value);
+    const [preparationDate, setPreparationDate] = React.useState(new Date());
 
     const Transition = React.forwardRef(function Transition(props, ref) {
         return <Slide direction="up" ref={ref} {...props} />
@@ -47,36 +63,36 @@ export default function NewCookedJarButton() {
         setOpen(false);
     };
 
-    const handleSave = () => {
+    const handleSave = async() => {
+        console.log(barcodeValue, substrate, preparationDate)
+
+        const records = await pb.collection('substrates').getFullList(200 /* batch size */, {
+            sort: '-created',
+        })
+        
+        const relId = records.find(el => el.name === substrate).id;
+
+        const data = {
+            "barcode": barcodeValue,
+            "substrate": relId,
+            "preparationDate": preparationDate
+        };
+        
+        const record = await pb.collection('cookedjars').create(data);
         handleClose()
     }
 
+
+
     //Date Picker Handle
     const [value, setValue] = React.useState(dayjs());
-
-    const handleDateChange = (newValue) => {
-      setValue(newValue);
-    };
-
-    //Substrate selection handle
-    const [age, setAge] = React.useState('');
-
-    const handleSubstrateChange = (event) => {
-      setAge(event.target.value);
-    };
 
     return (
         <>
         <IconButton color="primary" className='newCookedJar' size="large" onClick={handleClickOpen}>
             <AddCircleIcon className='icon' />
         </IconButton>
-        <Dialog
-        open={open}
-        TransitionComponent={Transition}
-        keepMounted
-        onClose={handleClose}
-        aria-describedby="alert-dialog-slide-description"
-        >
+        <Dialog open={open} onClose={handleClose} aria-describedby="alert-dialog-slide-description">
             <DialogTitle>{"Nuovo Substrato"}</DialogTitle>
             <DialogContent>
             <DialogContentText id="alert-dialog-slide-description">
@@ -84,8 +100,8 @@ export default function NewCookedJarButton() {
             </DialogContentText>
             <Stack spacing={3}>
 
-                <Box sx={{ minWidth: 120 }}>
-                    <TextField id="outlined-basic" label="Barcode" variant="outlined" />
+                <Box sx={{ minWidth: 200 }}>
+                    <TextField id="outlined-basic" label="Barcode" variant="outlined" value={barcodeValue} onChange={(e) => setBarcodeValue(e.target.value)}/>
                     <IconButton aria-label="fingerprint" color="primary" size="large">
                         <QrCodeScannerIcon variant="outlined"/>
                     </IconButton>
@@ -94,28 +110,22 @@ export default function NewCookedJarButton() {
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
 
                     <MobileDatePicker
-                    label="Date mobile"
-                    inputFormat="MM/DD/YYYY"
-                    value={value}
-                    onChange={handleDateChange}
-                    renderInput={(params) => <TextField {...params} />}
+                        label="Date mobile"
+                        inputFormat="MM/DD/YYYY"
+                        value={preparationDate}
+                        onChange={(e) => setPreparationDate(e)}
+                        renderInput={(params) => <TextField {...params} />}
                     />
                 </LocalizationProvider>
 
                 <Box sx={{ minWidth: 120 }}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Substrato</InputLabel>
-                        <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={age}
-                        label="Substrato"
-                        onChange={handleSubstrateChange}
-                        >
-                        <MenuItem value={1}>N1</MenuItem>
-                        <MenuItem value={2}>N2</MenuItem>
-                        <MenuItem value={3}>N3</MenuItem>
-                        <MenuItem value={4}>N4</MenuItem>
+                        <Select labelId="demo-simple-select-label"
+                        id="demo-simple-select" label="Substrato" value={substrate} onChange={(e) => setSubstrate(e.target.value)}>
+                        {substrates.map((substrate) => (
+                                    <MenuItem key={substrate.key} value={substrate.value}> {substrate.value} </MenuItem>
+                                ))}
                         </Select>
                     </FormControl>
                 </Box>

@@ -7,18 +7,10 @@ const columns = [
   { field: 'preparationDate', headerName: 'PREPARAZIONE', width: 150 },
 ];
 
-
-/*
-[
-  { id: 432654, Substrato: 'N1', PreparationDate: '21/34/22' },
-  { id: 654876, Substrato: 'N2', PreparationDate: '21/34/22' },
-];
-*/
-
 export default function CookedJarsDataTable(props) {
  
   
-  let rows = props.substrates
+  let rows = props.cookedjars
   console.log(rows)
 
   return (

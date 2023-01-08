@@ -7,6 +7,7 @@ import PocketBase from 'pocketbase';
 export default function Auth (props) {
     
     const navigate = useNavigate()
+    let pb = props.pb;
 
     const [email, setEmail] = useState('')
     const [psw, setPsw] = useState('')
@@ -16,15 +17,14 @@ export default function Auth (props) {
 
         e.preventDefault()
 
-        const pb = new PocketBase('http://127.0.0.1:8090')
-
+        
         const authData = await pb.collection('users').authWithPassword(email, psw)
             .then(() => {
                 if(pb.authStore.isValid){
                     console.log(pb.authStore.model)
                     props.setisLoggedIn(true);
                     props.setUser({name: pb.authStore.model.username})
-                    navigate("/home")
+                    //navigate("/app", {pb: pb})
                 }
             }).catch((error) => {
                 console.log(error)

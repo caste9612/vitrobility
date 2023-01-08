@@ -11,8 +11,14 @@ function App() {
 
   const [isLoggedIn, setisLoggedIn] = useState(false)
   const [user, setUser] = useState({})
+  let pb = ""
+        try {
+            pb = new PocketBase('http://127.0.0.1:8090');
+        } catch (err) {
+            console.log(err.isAbort);
+        }
 
-  const pb = new PocketBase('http://127.0.0.1:8090');
+  
 
 
   const navigate = useNavigate()
@@ -23,7 +29,7 @@ function App() {
 
   return (
       <Routes>
-        <Route path="/auth" element={<Auth setisLoggedIn = {setisLoggedIn} setUser = {setUser} />} />
+        <Route path="/auth" element={<Auth setisLoggedIn = {setisLoggedIn} setUser = {setUser} pb= {pb}/>} />
         <Route path="/home" element={<Home user = {user} pb = {pb}/>} />
         <Route path='*' element={<Navigate to='/home' />} />
       </Routes>

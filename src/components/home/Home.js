@@ -11,33 +11,40 @@ export default function Home(props) {
   let a = []
   const [cookedjars, setCookedjars] = useState([])
   const [substrates, setSubstrates] = useState([])
+  const [canRender, setCanRender] = useState(false);
 
   useEffect(() => {
-    getAllSubstrates().then((res) =>{
-      res.forEach(function(substrate) {
+    // declare the async data fetching function
+    const fetchData = async () => {
 
-        tmpSubstrate.push({
-        "id": substrate.id,
-        "name": substrate.name,
-        })
-      });
-      setSubstrates(tmpSubstrate);
-      getCookedJars().then((resp) => {
-        
-        resp.forEach(function(cookedJar) {
-          
+      // get the data from the api
+        let subCall = await getAllSubstrates();
+        subCall.forEach(function(substrate) {
+
+          tmpSubstrate.push({
+          "id": substrate.id,
+          "name": substrate.name,
+          })
+        });
+        setSubstrates(tmpSubstrate);
+
+        let coockCall = await getCookedJars();
+        coockCall.forEach(function(cookedJar) {
           a.push({
             "id": cookedJar.barcode,
-            "substrate": "ciao",//searchSubstrate(tmpSubstrate, cookedJar.substrate) 
+            "substrate": searchSubstrate(tmpSubstrate, cookedJar.substrate),
             "preparationDate": cookedJar.preparationDate
           })
           
         });
-        setCookedjars(a)
-      })
-    })
+        setCookedjars(a);
+    }
 
-}, []);
+    // call the function
+    fetchData().then(() => setCanRender( true ))
+    //.catch(console.error);
+
+  }, [])
   
 
   if(typeof props.user == 'undefined' || Object.keys(props.user).length === 0 ){
@@ -54,30 +61,65 @@ export default function Home(props) {
   }
   
   function searchSubstrate(tmpSubstrate, id){
-    return tmpSubstrate.forEach( (el) => {
-      if(el.id === id) return el
-    })
+    return tmpSubstrate.find(el => el.id === id).name;
   }
 
-/*
+
 
   // Subscribe to changes in any cookedjars record
   pb.collection('cookedjars').subscribe('*', function (e) {
-    //console.log(e.record);
-  }).then( (e) => {
-  });
-  
-  */
-  //console.log(substrates)
-  //console.log(cookedjars)
+    let record = e.record;
+    let updCock = []
+    getAllSubstrates().then((res) =>{
+      res.forEach(function(substrate) {
 
-  return (
-    <>
-        <ResponsiveAppBar user = {props.user}/>
-        <CookedJarsDataTable pb = {pb} substrates ={cookedjars} />
-        <NewCookedJarButton />
-    </>
-  );
+        tmpSubstrate.push({
+        "id": substrate.id,
+        "name": substrate.name,
+        })
+      });
+      setSubstrates(tmpSubstrate);
+      getCookedJars().then((resp) => {
+        
+        resp.forEach(function(cookedJar) {
+          updCock.push({
+            "id": cookedJar.barcode,
+            "substrate": searchSubstrate(tmpSubstrate, cookedJar.substrate),
+            "preparationDate": cookedJar.preparationDate
+          })
+          
+        });
+        setCookedjars(updCock)
+      })
+  })
+
+    /*
+    switch(e.action){
+      case "create":
+        cookedjars.push({
+            id: record.barcode,
+            substrate: searchSubstrate(substrates, record.substrate),
+            preparationDate: record.preparationDate
+        })
+      break;
+      default: console.log("ciao")
+    }
+    */
+  })
+
+  if(canRender) {
+    return (
+      <>
+          <ResponsiveAppBar user = {props.user}/>
+          <CookedJarsDataTable pb = {pb} cookedjars ={cookedjars} />
+          <NewCookedJarButton pb = {pb} cookedjars ={cookedjars}/>
+      </>
+    );
+  } else {
+      return(
+          <div></div>
+      )
+  }
 }
 
 
